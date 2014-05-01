@@ -21,6 +21,7 @@ public class RecommenderMain {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		// specifying the user id to which the recommendations have to be generated for
 		int userId=510;
@@ -31,7 +32,7 @@ public class RecommenderMain {
 		try
 		{
 			// Data model created to accept the input file
-			FileDataModel dataModel = new FileDataModel(new File("C://workspace/dwdteam9/u.csv"));
+			FileDataModel dataModel = new FileDataModel(new File("u2.csv"));
 
 			/*Specifies the Similarity algorithm*/
 			ItemSimilarity itemSimilarity = new LogLikelihoodSimilarity(dataModel);
@@ -44,16 +45,18 @@ public class RecommenderMain {
 
 			//
 			for (RecommendedItem recommendedItem : recommendations){
-				System.out.println("### ItemBasedRecommender :: " + recommendedItem.getItemID());
+				System.out.println("### ItemBasedRecommender :: " + recommendedItem.getItemID()+", value="+recommendedItem.getValue());
 			}
 
 			//--------------KNN recommender BEGIN------------------ 
 			ItemSimilarity itemSimilarity_knn = new PearsonCorrelationSimilarity(dataModel);
 			Optimizer optimizer_knn = new ConjugateGradientOptimizer();
 			KnnItemBasedRecommender recommender_knn = new KnnItemBasedRecommender(dataModel, itemSimilarity_knn, optimizer_knn, noOfRecommendations);
-			List<RecommendedItem> recommendations_knn =recommender.recommend(userId, noOfRecommendations);
+			
+			List<RecommendedItem> recommendations_knn =recommender_knn.recommend(userId, noOfRecommendations);
+			
 			for (RecommendedItem recommendedItem_knn : recommendations_knn){
-				System.out.println("### KNN :: " + recommendedItem_knn.getItemID());
+				System.out.println("### KNN :: " + recommendedItem_knn.getItemID()+", value="+recommendedItem_knn.getValue());
 			}
 			
 			//--------------KNN recommender END------------------
