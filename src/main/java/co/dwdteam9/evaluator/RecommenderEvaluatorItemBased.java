@@ -9,8 +9,11 @@ import java.util.List;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.eval.IRStatistics;
 import org.apache.mahout.cf.taste.eval.RecommenderBuilder;
+import org.apache.mahout.cf.taste.eval.RecommenderEvaluator;
 import org.apache.mahout.cf.taste.eval.RecommenderIRStatsEvaluator;
+import org.apache.mahout.cf.taste.impl.eval.AverageAbsoluteDifferenceRecommenderEvaluator;
 import org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluator;
+import org.apache.mahout.cf.taste.impl.eval.RMSRecommenderEvaluator;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.knn.ConjugateGradientOptimizer;
@@ -45,7 +48,8 @@ public class RecommenderEvaluatorItemBased {
 			FileDataModel dataModel = new FileDataModel(new File(filename));
 			
 			//define evaluator
-			RecommenderIRStatsEvaluator evaluator = new GenericRecommenderIRStatsEvaluator();
+			RecommenderEvaluator aad_evaluator = new AverageAbsoluteDifferenceRecommenderEvaluator();
+			RecommenderEvaluator rms_evaluator = new RMSRecommenderEvaluator();
 
 			RecommenderBuilder rBuilder = new RecommenderBuilder(){
 				@Override
@@ -65,12 +69,12 @@ public class RecommenderEvaluatorItemBased {
 			ItemBasedRecommender recommender = (ItemBasedRecommender) rBuilder.buildRecommender(dataModel);
 			List<RecommendedItem> recommendations = recommender.recommend(userId, noOfRecommendations);
 
-			IRStatistics stats = evaluator.evaluate(rBuilder, null, dataModel, null, 5, GenericRecommenderIRStatsEvaluator.CHOOSE_THRESHOLD, 1);
+			double value_aad = aad_evaluator.evaluate(rBuilder, null, dataModel, 0.7, 1.0);
+			double value_rms = rms_evaluator.evaluate(rBuilder, null, dataModel, 0.7, 1.0);
 			
 			System.out.println("#####################");
-			System.out.println(" Precision ::: " + stats.getPrecision());
-			System.out.println(" Recall ::: " + stats.getRecall());
-			System.out.println(" F1 measure ::: " + stats.getF1Measure());
+			System.out.println(" The value of AverageAbsoluteDifference evaluator ::: " + value_aad );
+			System.out.println(" The value of Root Mean Squared evaluator ::: " + value_rms );
 			System.out.println("#####################");
 			
 			//print recommendation 
